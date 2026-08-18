@@ -20,6 +20,13 @@ def _fraction(value: str | None) -> str | None:
         return value
 
 
+def _ratio(value: str | None) -> dict[str, str | None] | None:
+    if value is None:
+        return None
+    normalized = _fraction(value)
+    return {"raw": value, "normalized": normalized}
+
+
 def normalize_ffprobe(source: Path, raw: dict[str, Any], *, tool_version: str | None = None) -> dict[str, Any]:
     """Turn FFprobe's source-shaped JSON into stable, useful inspection data."""
     fmt = raw.get("format") if isinstance(raw.get("format"), dict) else {}
@@ -47,6 +54,9 @@ def normalize_ffprobe(source: Path, raw: dict[str, Any], *, tool_version: str | 
                 "sample_rate": stream.get("sample_rate"),
                 "channels": stream.get("channels"),
                 "metadata_tags": stream.get("tags", {}),
+                "view_ids_available": stream.get("view_ids_available"),
+                "view_pos_available": stream.get("view_pos_available"),
+                "multilayer": stream.get("disposition", {}).get("multilayer"),
             }
         )
     spatial_tag = tags.get("com.apple.quicktime.spatial.format-version")
@@ -69,6 +79,39 @@ def normalize_ffprobe(source: Path, raw: dict[str, Any], *, tool_version: str | 
             "message": "Left/right view ordering is not inferred by M1.",
         }
     )
+    video_stream = next((s for s in streams if isinstance(s, dict) and s.get("codec_type") == "video"), {})
+    side_data = video_stream.get("side_data_list", []) if isinstance(video_stream, dict) else []
+    stereo_data = next(
+        (item for item in side_data if isinstance(item, dict) and item.get("side_data_type") == "Stereo 3D"),
+        {},
+    )
+    view_ids = str(video_stream.get("view_ids_available", "")).split(",") if video_stream.get("view_ids_available") else []
+    view_positions = str(video_stream.get("view_pos_available", "")).split(",") if video_stream.get("view_pos_available") else []
+    spatial_observed = bool(spatial_tag or view_ids or stereo_data)
+    if spatial_observed:
+        is_spatial = True
+    view_ordering = "available_unmapped" if view_ids else "ambiguous"
+    if view_ids and len(view_ids) != len(view_positions):
+        warnings.append(
+            {
+                "code": "spatial.view_evidence_mismatch",
+                "message": "View ID and view position lists have different lengths.",
+            }
+        )
+    spatial_metadata = {
+        "format_version": spatial_tag,
+        "baseline": {
+            "raw": stereo_data.get("baseline"),
+            "millimetres": (float(stereo_data["baseline"]) / 1000.0)
+            if str(stereo_data.get("baseline", "")).isdigit()
+            else None,
+            "unit_status": "source-scale-confirmed-for-this-field",
+        }
+        if stereo_data.get("baseline") is not None
+        else None,
+        "horizontal_field_of_view": _ratio(stereo_data.get("horizontal_field_of_view")),
+        "horizontal_disparity_adjustment": _ratio(stereo_data.get("horizontal_disparity_adjustment")),
+    }
     return {
         "schema_version": 1,
         "source": {"path": str(source), "suffix": source.suffix.lower()},
@@ -82,12 +125,13 @@ def normalize_ffprobe(source: Path, raw: dict[str, Any], *, tool_version: str | 
         },
         "streams": normalized_streams,
         "summary": {"video_streams": video_count, "audio_streams": audio_count},
-        "spatial_metadata": {
-            "format_version": spatial_tag,
-            "baseline": None,
-            "horizontal_field_of_view": None,
-            "horizontal_disparity_adjustment": None,
+        "stereo": {
+            "view_ids_available": view_ids,
+            "view_positions_available": view_positions,
+            "ordering": view_ordering,
+            "semantic_left_right_mapping": None,
         },
+        "spatial_metadata": spatial_metadata,
         "warnings": warnings,
         "tool": {"name": "ffprobe", "version": tool_version},
     }

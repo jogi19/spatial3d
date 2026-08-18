@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -20,9 +21,10 @@ class FfprobeAdapter:
         self._runner = runner
 
     def probe(self, source: Path) -> dict[str, Any]:
+        executable = os.environ.get("SPATIAL3D_FFPROBE", "ffprobe")
         result = self._runner.run(
             (
-                "ffprobe",
+                executable,
                 "-v",
                 "error",
                 "-show_format",
@@ -42,4 +44,3 @@ class FfprobeAdapter:
         if not isinstance(decoded, dict):
             raise ProbeError("ffprobe returned a non-object JSON result")
         return decoded
-

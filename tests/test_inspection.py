@@ -21,6 +21,16 @@ class InspectionTests(unittest.TestCase):
                         "width": 1920,
                         "height": 1080,
                         "avg_frame_rate": "30/1",
+                        "view_ids_available": "0,1",
+                        "view_pos_available": "2,1",
+                        "side_data_list": [
+                            {
+                                "side_data_type": "Stereo 3D",
+                                "baseline": 17737,
+                                "horizontal_field_of_view": "63400/1000",
+                                "horizontal_disparity_adjustment": "200/10000",
+                            }
+                        ],
                     },
                     {"index": 1, "codec_type": "audio", "codec_name": "aac"},
                 ],
@@ -32,5 +42,10 @@ class InspectionTests(unittest.TestCase):
         )
         self.assertEqual(result["classification"], "spatial_video")
         self.assertEqual(result["streams"][0]["frame_rate"], "30")
+        self.assertEqual(result["stereo"]["ordering"], "available_unmapped")
+        self.assertEqual(result["spatial_metadata"]["baseline"]["millimetres"], 17.737)
+        self.assertEqual(result["spatial_metadata"]["horizontal_field_of_view"]["normalized"], "63.4")
+        self.assertEqual(
+            result["spatial_metadata"]["horizontal_disparity_adjustment"]["normalized"], "0.02"
+        )
         self.assertTrue(any(w["code"] == "spatial.view_order_unresolved" for w in result["warnings"]))
-

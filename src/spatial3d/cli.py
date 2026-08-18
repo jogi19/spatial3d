@@ -43,6 +43,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"source: {result['source']['path']}")
             if "summary" in result:
                 print(f"streams: {result['summary']['video_streams']} video, {result['summary']['audio_streams']} audio")
+            stereo = result.get("stereo", {})
+            if stereo.get("view_ids_available"):
+                print(f"view ids available: {','.join(stereo['view_ids_available'])}")
+                print(f"view positions available: {','.join(stereo['view_positions_available'])}")
+                print(f"view ordering: {stereo['ordering']}")
+            metadata = result.get("spatial_metadata", {})
+            baseline = metadata.get("baseline")
+            if baseline:
+                print(f"baseline: {baseline['millimetres']} mm (raw {baseline['raw']})")
+            fov = metadata.get("horizontal_field_of_view")
+            if fov:
+                print(f"horizontal FOV: {fov['normalized']} degrees (raw {fov['raw']})")
+            disparity = metadata.get("horizontal_disparity_adjustment")
+            if disparity:
+                print(f"horizontal disparity adjustment: {disparity['normalized']} (raw {disparity['raw']})")
             for warning in result.get("warnings", []):
                 print(f"warning [{warning['code']}]: {warning['message']}")
     return 0
