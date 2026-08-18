@@ -4,11 +4,11 @@
 
 ## M0 — project foundation
 
-- [ ] 1.1 Select and document supported Python/tooling versions and package layout.
-- [ ] 1.2 Create packaging, CLI entry point, test configuration, and developer documentation skeleton.
-- [ ] 1.3 Define domain-model, adapter, capability, and diagnostic interfaces.
-- [ ] 1.4 Add fake-adapter tests proving domain/application code is isolated from subprocess execution.
-- [ ] 1.5 Define fixture capture/redaction procedure and add representative non-personal tool-output fixtures.
+- [x] 1.1 Select and document supported Python/tooling versions and package layout.
+- [x] 1.2 Create packaging, CLI entry point, test configuration, and developer documentation skeleton.
+- [x] 1.3 Define domain-model, adapter, capability, and diagnostic interfaces.
+- [x] 1.4 Add fake-adapter tests proving domain/application code is isolated from subprocess execution.
+- [x] 1.5 Define fixture capture/redaction procedure and add representative non-personal tool-output fixtures.
 
 ## M1 — inspect
 
@@ -22,4 +22,3 @@
 ## Approval gate
 
 - [ ] 3.1 Receive user approval of the proposal/design and any amendments before starting M0 or M1.
-
