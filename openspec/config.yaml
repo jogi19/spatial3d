@@ -1,0 +1,6 @@
+# OpenSpec project context for spatial3d.
+project:
+  name: spatial3d
+  description: Linux-first, inspectable spatial-media toolkit
+workflow: spec-driven
+
