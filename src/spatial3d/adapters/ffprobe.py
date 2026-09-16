@@ -44,3 +44,11 @@ class FfprobeAdapter:
         if not isinstance(decoded, dict):
             raise ProbeError("ffprobe returned a non-object JSON result")
         return decoded
+
+    def version(self) -> str | None:
+        executable = os.environ.get("SPATIAL3D_FFPROBE", "ffprobe")
+        result = self._runner.run((executable, "-version"))
+        if result.return_code != 0:
+            return None
+        first = result.stdout.splitlines()[0] if result.stdout else ""
+        return first.removeprefix("ffprobe version ").split(" ", 1)[0] or None

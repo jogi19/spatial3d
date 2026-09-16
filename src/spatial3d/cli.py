@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 from spatial3d.adapters.ffprobe import FfprobeAdapter, ProbeError
+from spatial3d.adapters.exiftool import ExifToolAdapter, ExifToolError
 from spatial3d.adapters.process import SubprocessCommandRunner
 from spatial3d import __version__
 from spatial3d.inspection.inspect import inspect_file
@@ -32,8 +33,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "inspect":
         try:
-            result = inspect_file(args.file, ffprobe=FfprobeAdapter(SubprocessCommandRunner()))
-        except (FileNotFoundError, ProbeError) as exc:
+            runner = SubprocessCommandRunner()
+            ffprobe = FfprobeAdapter(runner)
+            exiftool = ExifToolAdapter(runner)
+            tool_version = exiftool.version() if args.file.suffix.lower() in {".heic", ".heif"} else ffprobe.version()
+            result = inspect_file(args.file, ffprobe=ffprobe, exiftool=exiftool, tool_version=tool_version)
+        except (FileNotFoundError, ProbeError, ExifToolError) as exc:
             print(f"spatial3d: inspect failed: {exc}")
             return 2
         if args.as_json:
@@ -48,6 +53,19 @@ def main(argv: Sequence[str] | None = None) -> int:
                 print(f"view ids available: {','.join(stereo['view_ids_available'])}")
                 print(f"view positions available: {','.join(stereo['view_positions_available'])}")
                 print(f"view ordering: {stereo['ordering']}")
+            if result.get("primary_2d"):
+                primary = result["primary_2d"]
+                print(f"primary image: {primary.get('width')}x{primary.get('height')}")
+            if result.get("auxiliary", {}).get("type"):
+                print(f"auxiliary type: {result['auxiliary']['type']}")
+            auxiliary = result.get("auxiliary", {})
+            if auxiliary.get("image_dimensions"):
+                dims = ", ".join(f"{item.get('width')}x{item.get('height')}" for item in auxiliary["image_dimensions"])
+                print(f"auxiliary images: {dims}")
+            if auxiliary.get("depth_observed"):
+                print(f"depth data: observed (version {auxiliary.get('depth_data_version')})")
+            if auxiliary.get("gain_map_observed"):
+                print(f"gain map: observed (version {auxiliary.get('gain_map_version')})")
             metadata = result.get("spatial_metadata", {})
             baseline = metadata.get("baseline")
             if baseline:

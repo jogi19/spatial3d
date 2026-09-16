@@ -9,3 +9,5 @@ build/
 dist/
 coverage.xml
 .coverage
+# Local media used for opt-in smoke tests; never commit personal originals.
+testdata/

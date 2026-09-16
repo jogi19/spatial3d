@@ -9,9 +9,15 @@ model. Source media is always treated as immutable.
 
 ## Status
 
-M0 (project foundation) is complete. No media parsing or processing is
-implemented yet. The approved design and unstarted M1 inspection work are in
-openspec/changes/initialize-inspection-foundation/.
+The M0 foundation and the first M1 video-inspection slice are implemented.
+`spatial3d inspect FILE` can probe MOV/MP4-family inputs through `ffprobe`,
+report stream and spatial evidence, normalize the currently evidenced ratio
+fields, and preserve unresolved view ordering as a warning. HEIC inspection
+uses ExifTool to report primary and auxiliary image evidence, depth and gain
+map metadata, while preserving unresolved auxiliary ordering. Decoding,
+conversion, and output writing remain out of scope. The design and remaining
+M1 work are tracked in
+`openspec/changes/initialize-inspection-foundation/`.
 
 ## Development
 
