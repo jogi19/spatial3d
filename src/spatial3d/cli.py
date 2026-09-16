@@ -33,6 +33,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "inspect":
         try:
+            if not args.file.is_file():
+                raise FileNotFoundError(args.file)
             runner = SubprocessCommandRunner()
             ffprobe = FfprobeAdapter(runner)
             exiftool = ExifToolAdapter(runner)
