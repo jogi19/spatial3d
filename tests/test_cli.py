@@ -34,3 +34,13 @@ class CliTests(unittest.TestCase):
         result = json.loads(output.getvalue())
         self.assertEqual(result["schema_version"], 1)
         self.assertEqual(result["classification"], "spatial_video")
+
+    def test_json_mode_reports_missing_source_structurally(self) -> None:
+        output = StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(main(["inspect", "does-not-exist.mov", "--json"]), 2)
+        import json
+        result = json.loads(output.getvalue())
+        self.assertEqual(result["schema_version"], 1)
+        self.assertEqual(result["classification"], "inspection_error")
+        self.assertEqual(result["error"]["code"], "inspection.failed")

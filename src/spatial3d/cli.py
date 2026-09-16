@@ -41,7 +41,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             tool_version = exiftool.version() if args.file.suffix.lower() in {".heic", ".heif"} else ffprobe.version()
             result = inspect_file(args.file, ffprobe=ffprobe, exiftool=exiftool, tool_version=tool_version)
         except (FileNotFoundError, ProbeError, ExifToolError) as exc:
-            print(f"spatial3d: inspect failed: {exc}")
+            if args.as_json:
+                print(json.dumps({
+                    "schema_version": 1,
+                    "source": {"path": str(args.file), "suffix": args.file.suffix.lower()},
+                    "classification": "inspection_error",
+                    "error": {"code": "inspection.failed", "message": str(exc)},
+                }, sort_keys=True))
+            else:
+                print(f"spatial3d: inspect failed: {exc}")
             return 2
         if args.as_json:
             print(json.dumps(result, indent=2, sort_keys=True))
