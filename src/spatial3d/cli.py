@@ -82,9 +82,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 dims = ", ".join(f"{item.get('width')}x{item.get('height')}" for item in auxiliary["image_dimensions"])
                 print(f"auxiliary images: {dims}")
             if auxiliary.get("depth_observed"):
-                print(f"depth data: observed (version {auxiliary.get('depth_data_version')})")
+                print(f"depth metadata: present (format version {auxiliary.get('depth_data_version')})")
             if auxiliary.get("gain_map_observed"):
-                print(f"gain map: observed (version {auxiliary.get('gain_map_version')})")
+                print(f"gain-map metadata: present (format version {auxiliary.get('gain_map_version')})")
             metadata = result.get("spatial_metadata", {})
             baseline = metadata.get("baseline")
             if baseline:
