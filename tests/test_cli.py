@@ -44,3 +44,12 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result["schema_version"], 1)
         self.assertEqual(result["classification"], "inspection_error")
         self.assertEqual(result["error"]["code"], "inspection.failed")
+
+    def test_human_output_includes_stream_facts(self) -> None:
+        sample = Path("testdata/IMG_0831.MOV")
+        if not sample.is_file():
+            self.skipTest("local smoke-test media is not present")
+        output = StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(main(["inspect", str(sample)]), 0)
+        self.assertIn("stream 0:", output.getvalue())

@@ -17,6 +17,12 @@ class InspectionTests(unittest.TestCase):
         result = normalize_ffprobe(Path("ordinary.mov"), {"streams": [{"codec_type": "video", "view_ids_available": "0"}]})
         self.assertEqual(result["classification"], "ordinary_or_unknown_video")
 
+    def test_malformed_side_data_is_tolerated(self) -> None:
+        result = normalize_ffprobe(Path("broken.mov"), {
+            "streams": [{"codec_type": "video", "side_data_list": None}],
+        })
+        self.assertEqual(result["classification"], "ordinary_or_unknown_video")
+
     def test_ratio_normalization_preserves_decimal_precision(self) -> None:
         result = normalize_ffprobe(Path("sample.mov"), {"streams": [], "format": {"tags": {}}})
         self.assertEqual(result["spatial_metadata"]["horizontal_field_of_view"], None)
