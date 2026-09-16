@@ -30,6 +30,13 @@ identity and help.
 FFmpeg/ffprobe and ExifTool are external tools, not Python dependencies. M1
 will discover and report their availability through adapters.
 
+### Inspection JSON contract
+
+`spatial3d inspect FILE --json` emits one JSON object with `schema_version: 1`.
+Successful results include classification, source facts, normalized values and
+warnings. Failures return exit code 2 with `classification: "inspection_error"`
+and an `error` object containing a code and message.
+
 ## Contributing test data
 
 Do not commit personal photos or videos. See docs/fixture-policy.md.

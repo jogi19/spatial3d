@@ -58,6 +58,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"source: {result['source']['path']}")
             if "summary" in result:
                 print(f"streams: {result['summary']['video_streams']} video, {result['summary']['audio_streams']} audio")
+                for stream in result.get("streams", []):
+                    details = f"stream {stream.get('index')}: {stream.get('type')}"
+                    if stream.get("codec"):
+                        details += f" {stream['codec']}"
+                    if stream.get("width") and stream.get("height"):
+                        details += f" {stream['width']}x{stream['height']}"
+                    if stream.get("frame_rate"):
+                        details += f" @ {stream['frame_rate']} fps"
+                    print(details)
             stereo = result.get("stereo", {})
             if stereo.get("view_ids_available"):
                 print(f"view ids available: {','.join(stereo['view_ids_available'])}")
