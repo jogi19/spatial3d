@@ -9,7 +9,7 @@ model. Source media is always treated as immutable.
 
 ## Status
 
-The M0 foundation and the first M1 video-inspection slice are implemented.
+The M0 foundation and the M1 metadata-inspection slice are implemented.
 `spatial3d inspect FILE` can probe MOV/MP4-family inputs through `ffprobe`,
 report stream and spatial evidence, normalize the currently evidenced ratio
 fields, and preserve unresolved view ordering as a warning. HEIC inspection
@@ -21,8 +21,8 @@ M1 work are tracked in
 
 ## Development
 
-Python 3.11 or newer is required. M0 intentionally provides only project
-identity and help.
+Python 3.11 or newer is required. The CLI provides read-only MOV/MP4 and
+HEIC/HEIF inspection; decoding and conversion are not implemented yet.
 
     python3 -m spatial3d --help
     PYTHONPATH=src python3 -m unittest discover -s tests -v
