@@ -18,6 +18,8 @@ map metadata, while preserving unresolved auxiliary ordering. Decoding,
 conversion, and output writing remain out of scope. The design and remaining
 M1 work are tracked in
 `openspec/changes/initialize-inspection-foundation/`.
+The post-M1 tracks for a Blender 3D text generator and a small spatial-video
+helper GUI are described in [docs/roadmap.md](docs/roadmap.md).
 
 ## Development
 
