@@ -21,23 +21,29 @@ script with its own tests and examples.
 
 ## Track B: spatial-video helper GUI
 
-Purpose: provide a small PySide6 application for selecting iPhone MOV/HEIC
-files, inspecting them, assembling compatible clips and exporting derived
-FSBS/HSBS previews.
+Purpose: provide a small PySide6 application for selecting iPhone Spatial
+Video files and producing one ordered SBS video. Apple Spatial sources are
+converted to SBS clips first; the resulting SBS clips are then concatenated.
 
 Suggested increments:
 
 1. File picker and M1 inspection results.
-2. Compatibility checks and clip list.
-3. View extraction and preview.
-4. FSBS/HSBS export through ffmpeg, with an explicitly simple global depth
-   offset slider.
-5. Batch processing and, where safe, stream-copy concatenation.
+2. Ordered clip list and compatibility checks.
+3. Convert each Spatial Video to a uniform SBS representation.
+4. Concatenate the generated SBS clips in selection order.
+5. Add optional mixing of already-SBS inputs.
 
-FSBS/HSBS output requires decoding and re-encoding; it cannot generally be
-created by stream-copying an Apple Spatial source. Lossless Apple-Spatial
-joining and Apple-compatible Spatial output are later goals and require
-separate validation of MV-HEVC metadata preservation.
+The Spatial-to-SBS step requires decoding the views and re-encoding the SBS
+result. Once every intermediate has identical codec, dimensions, frame rate,
+pixel format and audio layout, the final concatenation can usually use
+FFmpeg's concat demuxer with stream-copy and avoid another video
+decode/encode cycle. The first version may use a single combined FFmpeg
+pipeline if temporary clips are unnecessary, but it must preserve selection
+order and report when stream-copy compatibility is unavailable.
+
+Mixing already-SBS inputs with Spatial inputs is useful but optional for the
+first version. It requires probing those inputs, verifying their SBS geometry
+and normalizing them to the same output parameters.
 
 ## Shared boundaries and overlap
 
